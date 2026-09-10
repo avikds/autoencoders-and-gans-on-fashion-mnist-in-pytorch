@@ -25,7 +25,7 @@ python scaffold.py
 - [x] **13.** train_vae
 - [x] **14.** generate_images
 - [x] **15.** Generator
-- [ ] **16.** gan_step
+- [x] **16.** gan_step
 - [ ] **17.** train_gan
 - [ ] **18.** save_vae
 

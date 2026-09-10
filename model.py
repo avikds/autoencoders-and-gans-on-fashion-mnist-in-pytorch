@@ -617,8 +617,48 @@ class Discriminator(nn.Module):
     def forward(self, x):
         return self.net(x).squeeze(1)
 
-# Step 16 - gan_step (not yet solved)
-# TODO: implement
+# Step 16 - gan_step
+def gan_step(G, D, real, opt_g, opt_d):
+    batch_size = real.shape[0]
+
+    # -------------------------
+    # Discriminator phase
+    # -------------------------
+    z = torch.randn(batch_size, G.n_codings)
+    fake = G(z)
+
+    real_logits = D(real)
+    fake_logits = D(fake.detach())
+
+    real_targets = torch.ones_like(real_logits)
+    fake_targets = torch.zeros_like(fake_logits)
+
+    d_loss = (
+        F.binary_cross_entropy_with_logits(real_logits, real_targets)
+        + F.binary_cross_entropy_with_logits(fake_logits, fake_targets)
+    )
+
+    opt_d.zero_grad()
+    d_loss.backward()
+    opt_d.step()
+
+    # -------------------------
+    # Generator phase
+    # -------------------------
+    fake_logits_for_g = D(fake)
+
+    generator_targets = torch.ones_like(fake_logits_for_g)
+
+    g_loss = F.binary_cross_entropy_with_logits(
+        fake_logits_for_g,
+        generator_targets
+    )
+
+    opt_g.zero_grad()
+    g_loss.backward()
+    opt_g.step()
+
+    return float(d_loss.item()), float(g_loss.item())
 
 # Step 17 - train_gan (not yet solved)
 # TODO: implement
