@@ -27,7 +27,7 @@ python scaffold.py
 - [x] **15.** Generator
 - [x] **16.** gan_step
 - [x] **17.** train_gan
-- [ ] **18.** save_vae
+- [x] **18.** save_vae
 
 ---
 

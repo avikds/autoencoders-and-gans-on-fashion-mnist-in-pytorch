@@ -732,6 +732,27 @@ def discriminator_accuracy(D, real, fake):
 
     return float(accuracy.item())
 
-# Step 18 - save_vae (not yet solved)
-# TODO: implement
+# Step 18 - save_vae
+def save_vae(model, config, path):
+    torch.save(
+        {
+            "state_dict": model.state_dict(),
+            "config": config
+        },
+        path
+    )
+
+def load_vae(path):
+    checkpoint = torch.load(
+        path,
+        map_location="cpu"
+    )
+
+    config = checkpoint["config"]
+
+    model = VAE(**config)
+    model.load_state_dict(checkpoint["state_dict"])
+    model.eval()
+
+    return model
 
