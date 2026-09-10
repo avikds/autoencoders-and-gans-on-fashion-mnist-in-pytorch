@@ -20,7 +20,7 @@ python scaffold.py
 - [x] **8.** kl_sparsity_loss
 - [x] **9.** train_sparse
 - [x] **10.** codings_classifier
-- [ ] **11.** VAE
+- [x] **11.** VAE
 - [ ] **12.** vae_loss
 - [ ] **13.** train_vae
 - [ ] **14.** generate_images

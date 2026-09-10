@@ -442,8 +442,46 @@ def codings_classifier(autoencoder, data, epochs=20, lr=0.01, seed=42):
 
     return float(accuracy)
 
-# Step 11 - VAE (not yet solved)
-# TODO: implement
+# Step 11 - VAE
+class VAE(nn.Module):
+    def __init__(self, n_inputs=784, hidden=100, n_codings=10):
+        super().__init__()
+
+        self.n_codings = n_codings
+
+        self.hidden = nn.Sequential(
+            nn.Linear(n_inputs, hidden),
+            nn.ReLU()
+        )
+
+        self.mu = nn.Linear(hidden, n_codings)
+        self.logvar = nn.Linear(hidden, n_codings)
+
+        self.decoder = nn.Sequential(
+            nn.Linear(n_codings, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, n_inputs),
+            nn.Sigmoid()
+        )
+
+    def encode(self, x):
+        h = self.hidden(x)
+        mu = self.mu(h)
+        logvar = self.logvar(h)
+        return mu, logvar
+
+    def reparameterize(self, mu, logvar):
+        eps = torch.randn_like(mu)
+        return mu + torch.exp(0.5 * logvar) * eps
+
+    def decode(self, z):
+        return self.decoder(z)
+
+    def forward(self, x):
+        mu, logvar = self.encode(x)
+        z = self.reparameterize(mu, logvar)
+        recon = self.decode(z)
+        return recon, mu, logvar
 
 # Step 12 - vae_loss (not yet solved)
 # TODO: implement
