@@ -399,8 +399,48 @@ def mean_activation(model, X):
 
     return float(mean_act)
 
-# Step 10 - codings_classifier (not yet solved)
-# TODO: implement
+# Step 10 - codings_classifier
+def codings_classifier(autoencoder, data, epochs=20, lr=0.01, seed=42):
+    # Seed classifier initialization and training
+    torch.manual_seed(seed)
+
+    # Extract codings without tracking gradients
+    autoencoder.eval()
+
+    with torch.no_grad():
+        X_train_codings = autoencoder.encode(data["X_train"])
+        X_test_codings = autoencoder.encode(data["X_test"])
+
+    y_train = data["y_train"]
+    y_test = data["y_test"]
+
+    # Linear classifier: n_codings -> 10 classes
+    n_codings = X_train_codings.shape[1]
+    classifier = nn.Linear(n_codings, 10)
+
+    optimizer = torch.optim.Adam(classifier.parameters(), lr=lr)
+
+    # Full-batch training
+    classifier.train()
+
+    for _ in range(epochs):
+        optimizer.zero_grad()
+
+        logits = classifier(X_train_codings)
+        loss = F.cross_entropy(logits, y_train)
+
+        loss.backward()
+        optimizer.step()
+
+    # Evaluate on test codings
+    classifier.eval()
+
+    with torch.no_grad():
+        logits = classifier(X_test_codings)
+        predictions = logits.argmax(dim=1)
+        accuracy = (predictions == y_test).float().mean().item()
+
+    return float(accuracy)
 
 # Step 11 - VAE (not yet solved)
 # TODO: implement
