@@ -154,7 +154,6 @@ class LinearAutoencoder(nn.Module):
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 def train_autoencoder(model, X, epochs=5, lr=0.005, batch_size=64, seed=42, noise_std=0.0):
     # Set the random seed for reproducible shuffling and noise
     torch.manual_seed(seed)
@@ -199,7 +198,6 @@ def train_autoencoder(model, X, epochs=5, lr=0.005, batch_size=64, seed=42, nois
         losses.append(epoch_loss / n_batches)
 
     return losses
-
 
 def reconstruction_error(model, X):
     # Preserve the model's original training/evaluation state
