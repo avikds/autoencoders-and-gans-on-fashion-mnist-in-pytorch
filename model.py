@@ -315,7 +315,6 @@ def kl_sparsity_loss(activations, target=0.1):
     # Sum over hidden units
     return loss.sum()
 
-
 class SparseAutoencoder(nn.Module):
     def __init__(self, n_inputs=784, hidden=300):
         super().__init__()
