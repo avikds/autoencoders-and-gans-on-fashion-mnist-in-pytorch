@@ -552,8 +552,40 @@ def train_vae(model, X, epochs=10, lr=0.002, batch_size=64, seed=42):
 
     return losses
 
-# Step 14 - generate_images (not yet solved)
-# TODO: implement
+# Step 14 - generate_images
+def generate_images(model, n, seed=0):
+    # Seed latent-code sampling for reproducibility
+    torch.manual_seed(seed)
+
+    # Sample from the standard normal distribution
+    z = torch.randn(n, model.n_codings)
+
+    # Preserve the model's original state
+    was_training = model.training
+    model.eval()
+
+    # Decode without tracking gradients
+    with torch.no_grad():
+        images = model.decode(z)
+
+    # Restore the original state
+    if was_training:
+        model.train()
+
+    return images
+
+def interpolate_codings(z1, z2, steps):
+    # Generate evenly spaced interpolation factors from 0 to 1
+    t = torch.linspace(
+        0.0,
+        1.0,
+        steps,
+        device=z1.device,
+        dtype=z1.dtype
+    ).unsqueeze(1)
+
+    # Linear interpolation from z1 to z2, inclusive
+    return (1.0 - t) * z1.unsqueeze(0) + t * z2.unsqueeze(0)
 
 # Step 15 - Generator (not yet solved)
 # TODO: implement
