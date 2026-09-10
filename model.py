@@ -150,8 +150,72 @@ class LinearAutoencoder(nn.Module):
         codings = self.encode(x)
         return self.decoder(codings)
 
-# Step 4 - train_autoencoder (not yet solved)
-# TODO: implement
+# Step 4 - train_autoencoder
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+def train_autoencoder(model, X, epochs=5, lr=0.005, batch_size=64, seed=42, noise_std=0.0):
+    # Set the random seed for reproducible shuffling and noise
+    torch.manual_seed(seed)
+
+    # Adam optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    model.train()
+    losses = []
+
+    n_samples = X.shape[0]
+
+    for _ in range(epochs):
+        # Shuffle the samples for each epoch
+        indices = torch.randperm(n_samples, device=X.device)
+
+        epoch_loss = 0.0
+        n_batches = 0
+
+        for start in range(0, n_samples, batch_size):
+            batch_indices = indices[start:start + batch_size]
+            target = X[batch_indices]
+
+            # Add Gaussian noise only when requested
+            if noise_std != 0.0:
+                inp = target + noise_std * torch.randn_like(target)
+            else:
+                inp = target
+
+            optimizer.zero_grad()
+
+            reconstruction = model(inp)
+            loss = F.mse_loss(reconstruction, target)
+
+            loss.backward()
+            optimizer.step()
+
+            epoch_loss += loss.item()
+            n_batches += 1
+
+        # Mean loss across batches for this epoch
+        losses.append(epoch_loss / n_batches)
+
+    return losses
+
+
+def reconstruction_error(model, X):
+    # Preserve the model's original training/evaluation state
+    was_training = model.training
+
+    model.eval()
+
+    with torch.no_grad():
+        reconstruction = model(X)
+        mse = F.mse_loss(reconstruction, X).item()
+
+    # Restore original state
+    if was_training:
+        model.train()
+
+    return float(mse)
 
 # Step 5 - StackedAutoencoder (not yet solved)
 # TODO: implement
