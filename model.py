@@ -510,8 +510,47 @@ def vae_loss(recon, x, mu, logvar):
     # Add KL divergence term
     return reconstruction_loss + kl_divergence(mu, logvar)
 
-# Step 13 - train_vae (not yet solved)
-# TODO: implement
+# Step 13 - train_vae
+def train_vae(model, X, epochs=10, lr=0.002, batch_size=64, seed=42):
+    # Seed shuffling and VAE sampling for reproducibility
+    torch.manual_seed(seed)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    model.train()
+    losses = []
+
+    n_samples = X.shape[0]
+
+    for _ in range(epochs):
+        # Shuffle samples for each epoch
+        indices = torch.randperm(n_samples, device=X.device)
+
+        epoch_loss = 0.0
+        n_batches = 0
+
+        for start in range(0, n_samples, batch_size):
+            batch_indices = indices[start:start + batch_size]
+            batch = X[batch_indices]
+
+            optimizer.zero_grad()
+
+            # Forward pass through the VAE
+            recon, mu, logvar = model(batch)
+
+            # ELBO loss
+            loss = vae_loss(recon, batch, mu, logvar)
+
+            loss.backward()
+            optimizer.step()
+
+            epoch_loss += loss.item()
+            n_batches += 1
+
+        # Mean loss over batches in the epoch
+        losses.append(epoch_loss / n_batches)
+
+    return losses
 
 # Step 14 - generate_images (not yet solved)
 # TODO: implement

@@ -22,7 +22,7 @@ python scaffold.py
 - [x] **10.** codings_classifier
 - [x] **11.** VAE
 - [x] **12.** vae_loss
-- [ ] **13.** train_vae
+- [x] **13.** train_vae
 - [ ] **14.** generate_images
 - [ ] **15.** Generator
 - [ ] **16.** gan_step
