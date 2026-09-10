@@ -215,8 +215,30 @@ def reconstruction_error(model, X):
 
     return float(mse)
 
-# Step 5 - StackedAutoencoder (not yet solved)
-# TODO: implement
+# Step 5 - StackedAutoencoder
+class StackedAutoencoder(nn.Module):
+    def __init__(self, n_inputs=784, hidden=100, n_codings=30):
+        super().__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Linear(n_inputs, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, n_codings)
+        )
+
+        self.decoder = nn.Sequential(
+            nn.Linear(n_codings, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, n_inputs),
+            nn.Sigmoid()
+        )
+
+    def encode(self, x):
+        return self.encoder(x)
+
+    def forward(self, x):
+        codings = self.encode(x)
+        return self.decoder(codings)
 
 # Step 6 - TiedAutoencoder (not yet solved)
 # TODO: implement
