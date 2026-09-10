@@ -298,8 +298,44 @@ def denoising_gain(model, X, noise_std=0.3, seed=0):
 
     return float((noisy_mse / reconstruction_mse).item())
 
-# Step 8 - kl_sparsity_loss (not yet solved)
-# TODO: implement
+# Step 8 - kl_sparsity_loss
+def kl_sparsity_loss(activations, target=0.1):
+    # Mean activation of each hidden unit across the batch
+    p = activations.mean(dim=0)
+
+    # Avoid log(0) and division by zero
+    p = torch.clamp(p, 1e-6, 1.0 - 1e-6)
+
+    # KL divergence: KL(target || p)
+    loss = (
+        target * torch.log(target / p)
+        + (1.0 - target) * torch.log((1.0 - target) / (1.0 - p))
+    )
+
+    # Sum over hidden units
+    return loss.sum()
+
+
+class SparseAutoencoder(nn.Module):
+    def __init__(self, n_inputs=784, hidden=300):
+        super().__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Linear(n_inputs, hidden),
+            nn.Sigmoid()
+        )
+
+        self.decoder = nn.Sequential(
+            nn.Linear(hidden, n_inputs),
+            nn.Sigmoid()
+        )
+
+    def encode(self, x):
+        return self.encoder(x)
+
+    def forward(self, x):
+        codings = self.encode(x)
+        return self.decoder(codings)
 
 # Step 9 - train_sparse (not yet solved)
 # TODO: implement
