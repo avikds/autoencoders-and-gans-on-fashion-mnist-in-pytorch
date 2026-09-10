@@ -272,8 +272,31 @@ class TiedAutoencoder(nn.Module):
 
         return torch.sigmoid(reconstruction)
 
-# Step 7 - denoising_gain (not yet solved)
-# TODO: implement
+# Step 7 - denoising_gain
+def denoising_gain(model, X, noise_std=0.3, seed=0):
+    # Seed noise generation for reproducibility
+    torch.manual_seed(seed)
+
+    # Add Gaussian noise and clip pixel values to [0, 1]
+    noisy = torch.clamp(
+        X + noise_std * torch.randn_like(X),
+        0.0,
+        1.0
+    )
+
+    # Preserve the model's original state
+    was_training = model.training
+    model.eval()
+
+    with torch.no_grad():
+        noisy_mse = F.mse_loss(noisy, X)
+        reconstruction_mse = F.mse_loss(model(noisy), X)
+
+    # Restore the original training/evaluation state
+    if was_training:
+        model.train()
+
+    return float((noisy_mse / reconstruction_mse).item())
 
 # Step 8 - kl_sparsity_loss (not yet solved)
 # TODO: implement
