@@ -29,6 +29,17 @@ python scaffold.py
 - [x] **17.** train_gan
 - [x] **18.** save_vae
 
----
+## Results
 
-Built on Deep-ML.
+```
+reconstruction MSE with 30 codings: PCA 0.0154   linear AE 0.0179   stacked AE 0.0156
+tied weights: 82,414 parameters vs 163,814, MSE 0.0152
+denoising: reconstruction is 2.1x closer to the clean image than the noisy input
+sparsity: mean coding activation 0.50 -> 0.10 (target 0.10)
+linear classifier on the stacked AE's 30 codings: 0.777 test accuracy
+
+VAE: loss 369 -> 257 nats/image; 16 samples with mean pixel 0.21, spread across samples 0.172
+interpolating between two test garments: 8 frames of 784 pixels
+GAN after one epoch: D loss 0.74, G loss 2.39, discriminator accuracy 0.88
+saved and reloaded VAE generates identical samples: True
+```
