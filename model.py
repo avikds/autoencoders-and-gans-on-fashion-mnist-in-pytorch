@@ -240,8 +240,37 @@ class StackedAutoencoder(nn.Module):
         codings = self.encode(x)
         return self.decoder(codings)
 
-# Step 6 - TiedAutoencoder (not yet solved)
-# TODO: implement
+# Step 6 - TiedAutoencoder
+class TiedAutoencoder(nn.Module):
+    def __init__(self, n_inputs=784, hidden=100, n_codings=30):
+        super().__init__()
+
+        # Encoder parameters
+        self.W1 = nn.Parameter(torch.empty(hidden, n_inputs))
+        self.b1 = nn.Parameter(torch.zeros(hidden))
+
+        self.W2 = nn.Parameter(torch.empty(n_codings, hidden))
+        self.b2 = nn.Parameter(torch.zeros(n_codings))
+
+        # Decoder-only biases
+        self.b3 = nn.Parameter(torch.zeros(hidden))
+        self.b4 = nn.Parameter(torch.zeros(n_inputs))
+
+        # Initialize weights like nn.Linear
+        nn.init.kaiming_uniform_(self.W1, a=5 ** 0.5)
+        nn.init.kaiming_uniform_(self.W2, a=5 ** 0.5)
+
+    def encode(self, x):
+        hidden_representation = torch.relu(x @ self.W1.T + self.b1)
+        return hidden_representation @ self.W2.T + self.b2
+
+    def forward(self, x):
+        codings = self.encode(x)
+
+        hidden_representation = torch.relu(codings @ self.W2 + self.b3)
+        reconstruction = hidden_representation @ self.W1 + self.b4
+
+        return torch.sigmoid(reconstruction)
 
 # Step 7 - denoising_gain (not yet solved)
 # TODO: implement
