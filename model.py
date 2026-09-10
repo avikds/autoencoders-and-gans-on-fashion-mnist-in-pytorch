@@ -336,8 +336,68 @@ class SparseAutoencoder(nn.Module):
         codings = self.encode(x)
         return self.decoder(codings)
 
-# Step 9 - train_sparse (not yet solved)
-# TODO: implement
+# Step 9 - train_sparse
+def train_sparse(model, X, weight=0.1, target=0.1, epochs=5, lr=0.005, batch_size=64, seed=42):
+    # Seed shuffling for reproducibility
+    torch.manual_seed(seed)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    model.train()
+    losses = []
+
+    n_samples = X.shape[0]
+
+    for _ in range(epochs):
+        # Shuffle the training data for each epoch
+        indices = torch.randperm(n_samples, device=X.device)
+
+        epoch_loss = 0.0
+        n_batches = 0
+
+        for start in range(0, n_samples, batch_size):
+            batch_indices = indices[start:start + batch_size]
+            batch = X[batch_indices]
+
+            optimizer.zero_grad()
+
+            # Forward pass
+            reconstruction = model(batch)
+            codings = model.encode(batch)
+
+            # Reconstruction loss
+            reconstruction_loss = F.mse_loss(reconstruction, batch)
+
+            # Sparsity penalty
+            sparsity_loss = kl_sparsity_loss(codings, target)
+
+            # Total loss
+            loss = reconstruction_loss + weight * sparsity_loss
+
+            loss.backward()
+            optimizer.step()
+
+            epoch_loss += loss.item()
+            n_batches += 1
+
+        # Mean total loss across batches
+        losses.append(epoch_loss / n_batches)
+
+    return losses
+
+def mean_activation(model, X):
+    # Preserve the model's original state
+    was_training = model.training
+    model.eval()
+
+    with torch.no_grad():
+        mean_act = model.encode(X).mean().item()
+
+    # Restore original state
+    if was_training:
+        model.train()
+
+    return float(mean_act)
 
 # Step 10 - codings_classifier (not yet solved)
 # TODO: implement

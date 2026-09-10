@@ -18,7 +18,7 @@ python scaffold.py
 - [x] **6.** TiedAutoencoder
 - [x] **7.** denoising_gain
 - [x] **8.** kl_sparsity_loss
-- [ ] **9.** train_sparse
+- [x] **9.** train_sparse
 - [ ] **10.** codings_classifier
 - [ ] **11.** VAE
 - [ ] **12.** vae_loss
