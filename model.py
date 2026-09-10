@@ -660,8 +660,77 @@ def gan_step(G, D, real, opt_g, opt_d):
 
     return float(d_loss.item()), float(g_loss.item())
 
-# Step 17 - train_gan (not yet solved)
-# TODO: implement
+# Step 17 - train_gan
+def train_gan(G, D, X, epochs=1, lr=0.001, batch_size=32, seed=42):
+    # Seed shuffling and latent-code sampling
+    torch.manual_seed(seed)
+
+    # Separate Adam optimizer for each network
+    opt_g = torch.optim.Adam(G.parameters(), lr=lr)
+    opt_d = torch.optim.Adam(D.parameters(), lr=lr)
+
+    history = {
+        "d_loss": [],
+        "g_loss": []
+    }
+
+    n_samples = X.shape[0]
+
+    for _ in range(epochs):
+        # Shuffle the data for each epoch
+        indices = torch.randperm(n_samples, device=X.device)
+
+        epoch_d_loss = 0.0
+        epoch_g_loss = 0.0
+        n_batches = 0
+
+        for start in range(0, n_samples, batch_size):
+            batch_indices = indices[start:start + batch_size]
+            real = X[batch_indices]
+
+            d_loss, g_loss = gan_step(
+                G,
+                D,
+                real,
+                opt_g,
+                opt_d
+            )
+
+            epoch_d_loss += d_loss
+            epoch_g_loss += g_loss
+            n_batches += 1
+
+        # Per-epoch mean losses
+        history["d_loss"].append(epoch_d_loss / n_batches)
+        history["g_loss"].append(epoch_g_loss / n_batches)
+
+    return history
+
+def discriminator_accuracy(D, real, fake):
+    # Evaluate without gradients
+    was_training = D.training
+    D.eval()
+
+    with torch.no_grad():
+        real_logits = D(real)
+        fake_logits = D(fake)
+
+        # Real is correctly classified when logit > 0
+        real_correct = (real_logits > 0).float().sum()
+
+        # Fake is correctly classified when logit <= 0
+        fake_correct = (fake_logits <= 0).float().sum()
+
+        total_correct = real_correct + fake_correct
+        total_samples = real.shape[0] + fake.shape[0]
+
+        accuracy = total_correct / total_samples
+
+    # Restore original state
+    if was_training:
+        D.train()
+
+    return float(accuracy.item())
 
 # Step 18 - save_vae (not yet solved)
 # TODO: implement
