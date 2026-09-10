@@ -12,7 +12,7 @@ python scaffold.py
 
 - [x] **1.** load_fashion_pixels
 - [x] **2.** pca_reconstruction_error
-- [ ] **3.** LinearAutoencoder
+- [x] **3.** LinearAutoencoder
 - [ ] **4.** train_autoencoder
 - [ ] **5.** StackedAutoencoder
 - [ ] **6.** TiedAutoencoder
