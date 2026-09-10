@@ -483,8 +483,32 @@ class VAE(nn.Module):
         recon = self.decode(z)
         return recon, mu, logvar
 
-# Step 12 - vae_loss (not yet solved)
-# TODO: implement
+# Step 12 - vae_loss
+def kl_divergence(mu, logvar):
+    # KL divergence from N(mu, exp(logvar)) to N(0, I)
+    kl = -0.5 * torch.sum(
+        1.0 + logvar - mu.pow(2) - torch.exp(logvar),
+        dim=1
+    )
+
+    # Mean over the batch
+    return kl.mean()
+
+def vae_loss(recon, x, mu, logvar):
+    batch_size = x.shape[0]
+
+    # Reconstruction loss: summed BCE for each image,
+    # then averaged over the batch
+    reconstruction_loss = (
+        F.binary_cross_entropy(
+            recon,
+            x,
+            reduction="sum"
+        ) / batch_size
+    )
+
+    # Add KL divergence term
+    return reconstruction_loss + kl_divergence(mu, logvar)
 
 # Step 13 - train_vae (not yet solved)
 # TODO: implement
