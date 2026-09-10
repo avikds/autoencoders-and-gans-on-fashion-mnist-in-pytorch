@@ -587,8 +587,35 @@ def interpolate_codings(z1, z2, steps):
     # Linear interpolation from z1 to z2, inclusive
     return (1.0 - t) * z1.unsqueeze(0) + t * z2.unsqueeze(0)
 
-# Step 15 - Generator (not yet solved)
-# TODO: implement
+# Step 15 - Generator
+class Generator(nn.Module):
+    def __init__(self, n_codings=30, hidden=100, n_outputs=784):
+        super().__init__()
+
+        self.n_codings = n_codings
+
+        self.net = nn.Sequential(
+            nn.Linear(n_codings, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, n_outputs),
+            nn.Sigmoid()
+        )
+
+    def forward(self, z):
+        return self.net(z)
+
+class Discriminator(nn.Module):
+    def __init__(self, n_inputs=784, hidden=100):
+        super().__init__()
+
+        self.net = nn.Sequential(
+            nn.Linear(n_inputs, hidden),
+            nn.LeakyReLU(0.2),
+            nn.Linear(hidden, 1)
+        )
+
+    def forward(self, x):
+        return self.net(x).squeeze(1)
 
 # Step 16 - gan_step (not yet solved)
 # TODO: implement
